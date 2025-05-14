@@ -1,4 +1,5 @@
 // Set up basic variables for app
+debugger
 const record = document.querySelector(".record");
 const stop = document.querySelector(".stop");
 const soundClips = document.querySelector(".sound-clips");
@@ -16,11 +17,34 @@ const canvasCtx = canvas.getContext("2d");
 if (navigator.mediaDevices.getUserMedia) {
   console.log("The mediaDevices.getUserMedia() method is supported.");
 
+
+  navigator.mediaDevices.enumerateDevices().then(function(devices) {
+    devices.forEach(function(device) {
+      debugger
+      console.log(device.kind + ": " + device.label + " id = " + device.deviceId);
+    });
+  })
+    .catch(function(err) {
+      console.log(err.name + ": " + err.message);
+    });
+
+
   const constraints = { audio: true };
+  // const constraints = {
+  //   audio: {
+  //     deviceId: { exact: 'sterero-mix-device-id' } // 立体声混音的设备ID
+  //   }
+  // };
   let chunks = [];
 
   let onSuccess = function (stream) {
-    const mediaRecorder = new MediaRecorder(stream);
+
+    const  options = {
+      audioBitsPerSecond : 128000,
+      mimeType : 'audio/webm'
+    }
+    const mediaRecorder = new MediaRecorder(stream, options);
+    // const mediaRecorder = new MediaRecorder(stream);
 
     visualize(stream);
 
@@ -78,6 +102,15 @@ if (navigator.mediaDevices.getUserMedia) {
       const blob = new Blob(chunks, { type: mediaRecorder.mimeType });
       chunks = [];
       const audioURL = window.URL.createObjectURL(blob);
+      // 下载blob 到本地
+      // const a = document.createElement('a');
+      // a.style.display = 'none';
+      // a.href = audioURL;
+      // a.download = clipName + '.mp3';
+      // document.body.appendChild(a);
+      // a.click();
+
+
       audio.src = audioURL;
       console.log("recorder stopped");
 
